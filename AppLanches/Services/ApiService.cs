@@ -28,7 +28,7 @@ namespace AppLanches.Services
             };
         }
 
-        public async Task<ApiResponse<bool>> RegistrarUsuario(string name, string email,
+        public async Task<ApiResponse<bool>> RegisterUser(string name, string email,
                                                  string phone, string password)
         {
             try

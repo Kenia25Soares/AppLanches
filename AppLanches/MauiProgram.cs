@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AppLanches.Services;
+using Microsoft.Extensions.Logging;
 
 namespace AppLanches
 {
@@ -17,7 +18,9 @@ namespace AppLanches
 
 #if DEBUG
     		builder.Logging.AddDebug();
-#endif
+#endif      
+            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton<ApiService>();
 
             return builder.Build();
         }

@@ -14,7 +14,7 @@ namespace AppLanches.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        public  readonly string BaseUrl = "https://szwt8sgs-7298.uks1.devtunnels.ms/";
+        public  readonly string BaseUrl = "https://20bjv6z1-7298.uks1.devtunnels.ms/";
         private readonly ILogger<ApiService> _logger;
 
         JsonSerializerOptions _serializerOptions;

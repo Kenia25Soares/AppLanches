@@ -89,6 +89,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
+        <!-- Mais populares -->
         <Label Grid.Row="5"
                Text="Mais Populares"
                FontSize="Medium"

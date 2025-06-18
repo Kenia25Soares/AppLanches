@@ -107,12 +107,40 @@ namespace AppLanches.Services
             }
         }
 
-        private async Task<HttpResponseMessage> PostRequest(string uri, HttpContent content)
+        public async Task<ApiResponse<bool>> AddItemToCart(ShoppingCart shoppingCart)
         {
-            var enderecoUrl = BaseUrl + uri;
             try
             {
-                var result = await _httpClient.PostAsync(enderecoUrl, content);
+                var json = JsonSerializer.Serialize(shoppingCart, _serializerOptions); // Serializa o objeto ShoppingCart para JSON
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await PostRequest("api/ShoppingCartItems", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
+                    return new ApiResponse<bool>
+                    {
+                        ErrorMessage = $"Erro ao enviar requisição HTTP: {response.StatusCode}"
+                    };
+                }
+
+                return new ApiResponse<bool> { Data = true }; // Retorna sucesso se a requisição for bem-sucedida
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error ao adicionar item no carinho: {ex.Message}");
+                return new ApiResponse<bool> { ErrorMessage = ex.Message };
+            }
+        }
+
+
+        private async Task<HttpResponseMessage> PostRequest(string uri, HttpContent content)
+        {
+            var enderecoUrl = BaseUrl + uri;  // Constrói a URL completa para a requisição
+            try
+            {
+                var result = await _httpClient.PostAsync(enderecoUrl, content);  // Envia a requisição POST para o endpoint especificado
                 return result;
             }
             catch (Exception ex)

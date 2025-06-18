@@ -16,7 +16,7 @@ public partial class HomePage : ContentPage
         LblUserName.Text = "Olá, " + Preferences.Get("userName", string.Empty);
         _apiService = apiService;
         _validator = validator;
-        Title = AppConfig.tituloHomePage;
+        Title = AppConfig.HomePageTitlte;
     }
 
 
@@ -127,7 +127,7 @@ public partial class HomePage : ContentPage
         if (currentSelection == null) return;
 
 
-        Navigation.PushAsync(new ProductsListPage( currentSelection.Id,
+        Navigation.PushAsync(new ProductsListPage( currentSelection.Id,  // Pass the category ID to the ProductsListPage
                                                         currentSelection.Name!,
                                                         _apiService,
                                                         _validator));
@@ -137,11 +137,31 @@ public partial class HomePage : ContentPage
 
     private void CvBestSellers_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-
+        if (sender is CollectionView collectionView)
+        {
+            NavigateToProductDetailsPage(collectionView, e);
+        }
     }
 
     private void CvPopular_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (sender is CollectionView collectionView)
+        {
+            NavigateToProductDetailsPage(collectionView, e);
+        }
+    }
 
+    private void NavigateToProductDetailsPage(CollectionView collectionView, SelectionChangedEventArgs e)
+    {
+        var currentSelection = e.CurrentSelection.FirstOrDefault() as Product;  //obtem o primeiro item selecionado na coleção
+
+        if (currentSelection == null)
+            return;
+
+        Navigation.PushAsync(new ProductDetailsPage(
+                                 currentSelection.Id, currentSelection.Name!, _apiService, _validator
+        ));
+
+        collectionView.SelectedItem = null;
     }
 }

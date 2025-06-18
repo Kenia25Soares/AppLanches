@@ -19,15 +19,14 @@
                      CornerRadius="15"
                      Margin="20"
                      Padding="5"
-                     Source="heart"
+                     Source="heart.png"
                      BackgroundColor="White"
                      HorizontalOptions="End"
                      VerticalOptions="Start"
                      x:Name="ImageBtnFavourite"                      
                      Clicked="ImageBtnFavourite_Clicked"/>
 
-        <HorizontalStackLayout Spacing="20" 
-                               HorizontalOptions="Center"
+        <HorizontalStackLayout Spacing="20"  HorizontalOptions="Center"
                                Margin="20"
                                Grid.Row="1">
 
@@ -105,19 +104,17 @@
               ColumnSpacing="10">
 
             <VerticalStackLayout VerticalOptions="Center">
-
                 <Label Text="Preço Total"
                        VerticalOptions="Center"
                        FontSize="Medium"
                        FontAttributes="Bold"
                      HorizontalOptions="Center" />
-
                 <Label VerticalOptions="Center"
                        HorizontalOptions="Center">
                     <Label.FormattedText>
                         <FormattedString>
                             <FormattedString.Spans>
-                                <Span Text="€ " FontSize="Medium"  FontAttributes="Bold" />
+                                <Span Text="R$ " FontSize="Medium"  FontAttributes="Bold" />
                                 <Span x:Name="LblTotalPrice"  FontSize="Medium"  FontAttributes="Bold"/>
                             </FormattedString.Spans>
                         </FormattedString>

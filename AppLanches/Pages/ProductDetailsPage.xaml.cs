@@ -18,7 +18,7 @@ public partial class ProductDetailsPage : ContentPage
         _apiService = apiService;
         _validator = validator;
         _productId = productId;
-        Title = productName ?? "Product Details";
+        Title = productName ?? "Detalhe do Produto";
 
     }
 
@@ -70,17 +70,71 @@ public partial class ProductDetailsPage : ContentPage
 
     private void BtnRemove_Clicked(object sender, EventArgs e)
     {
+        if (int.TryParse(LblQuantity.Text, out int quantity) &&
+          decimal.TryParse(LblProductPrice.Text, out decimal unitPrice))
+        {
+            // Decrementa a quantidade, e não permite que seja menor que 1
+            quantity = Math.Max(1, quantity - 1);
+            LblQuantity.Text = quantity.ToString();
 
+            // Calcula o preço total
+            var totalPrice = quantity * unitPrice;
+            LblTotalPrice.Text = totalPrice.ToString();
+        }
+        else
+        {
+            // Tratar caso as conversões falhem
+            DisplayAlert("Error", "Valores inválidos", "OK");
+        }
     }
 
     private void BtnAdd_Clicked(object sender, EventArgs e)
     {
+        if (int.TryParse(LblQuantity.Text, out int quantity) &&
+         decimal.TryParse(LblProductPrice.Text, out decimal unitPrice))
+        {
+            // Incrementa a quantidade
+            quantity++;
+            LblQuantity.Text = quantity.ToString();
 
+            // Calcula o preço total
+            var totalPrice = quantity * unitPrice;
+            LblTotalPrice.Text = totalPrice.ToString(); // Formata como moeda
+        }
+        else
+        {
+            // Tratar caso as conversões falhem
+            DisplayAlert("Error", "Valores inválidos", "OK");
+        }
     }
 
-    private void BtnAddToCart_Clicked(object sender, EventArgs e)
+    private async void BtnAddToCart_Clicked(object sender, EventArgs e)
     {
-
+        try
+        {
+            var shoppingCart = new ShoppingCart()
+            {
+                Quantity = Convert.ToInt32(LblQuantity.Text),
+                UnitPrice = Convert.ToDecimal(LblProductPrice.Text),
+                Total = Convert.ToDecimal(LblTotalPrice.Text),
+                ProductId = _productId,
+                ClientId = Preferences.Get("userid", 0)
+            };
+            var response = await _apiService.AddItemToCart(shoppingCart);
+            if (response.Data)
+            {
+                await DisplayAlert("Success", "Item adicionado ao carrinho!", "OK");
+                await Navigation.PopAsync();
+            }
+            else
+            {
+                await DisplayAlert("Error", $"Falha ao adicionar item: {response.ErrorMessage}", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Ocorreu um erro: {ex.Message}", "OK");
+        }
     }
 
     private async Task DisplayLoginPage()

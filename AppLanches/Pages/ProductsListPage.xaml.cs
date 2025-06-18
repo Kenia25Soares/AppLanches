@@ -8,23 +8,23 @@ public partial class ProductsListPage : ContentPage
 {
     private readonly ApiService _apiService;
     private readonly IValidator _validator;
-    private int _categoryId;
+    private int _categoriaId;
     private bool _loginPageDisplayed = false;
 
-    public ProductsListPage(int categoryId, string categoryName, 
+    public ProductsListPage(int categoriaId, string categoryName, 
                             ApiService apiService, IValidator validator)
     {
         InitializeComponent();
         _apiService = apiService;
         _validator = validator;
-        _categoryId = categoryId;
+        _categoriaId = categoriaId;
         Title = categoryName ?? "Products";  
     }
 
     protected override async void OnAppearing()  //esse metodo é chamado quando a página aparece na tela
     {
         base.OnAppearing();
-        await GetProductsList(_categoryId);
+        await GetProductsList(_categoriaId);
     }
 
     private async Task<IEnumerable<Product>> GetProductsList(int categoryId)  //esse método busca os produtos de uma categoria específica
@@ -74,6 +74,11 @@ public partial class ProductsListPage : ContentPage
                                                      _validator));
 
         ((CollectionView)sender).SelectedItem = null;  // Limpa a seleção atual para evitar que o item permaneça selecionado após a navegação
+
+    }
+
+    private void CvProducts_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+    {
 
     }
 }

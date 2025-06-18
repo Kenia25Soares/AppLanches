@@ -8,23 +8,23 @@ public partial class ProductsListPage : ContentPage
 {
     private readonly ApiService _apiService;
     private readonly IValidator _validator;
-    private int _categoriaId;
+    private int _categoryId;
     private bool _loginPageDisplayed = false;
 
-    public ProductsListPage(int categoriaId, string categoryName, 
+    public ProductsListPage(int categoryId, string categoryName, 
                             ApiService apiService, IValidator validator)
     {
         InitializeComponent();
         _apiService = apiService;
         _validator = validator;
-        _categoriaId = categoriaId;
+        _categoryId = categoryId;
         Title = categoryName ?? "Products";  
     }
 
     protected override async void OnAppearing()  //esse metodo é chamado quando a página aparece na tela
     {
         base.OnAppearing();
-        await GetProductsList(_categoriaId);
+        await GetProductsList(_categoryId);
     }
 
     private async Task<IEnumerable<Product>> GetProductsList(int categoryId)  //esse método busca os produtos de uma categoria específica
@@ -61,5 +61,19 @@ public partial class ProductsListPage : ContentPage
         await Navigation.PushAsync(new LoginPage(_apiService, _validator));
     }
 
-   
+    private void CvProducts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var currentSelection = e.CurrentSelection.FirstOrDefault() as Product;
+
+        if (currentSelection is null)
+            return;
+
+        Navigation.PushAsync(new ProductDetailsPage(currentSelection.Id,
+                                                     currentSelection.Name!, // Nome do produto, não pode ser nulo
+                                                     _apiService,
+                                                     _validator));
+
+        ((CollectionView)sender).SelectedItem = null;  // Limpa a seleção atual para evitar que o item permaneça selecionado após a navegação
+
+    }
 }

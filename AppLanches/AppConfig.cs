@@ -8,7 +8,7 @@ namespace AppLanches
 {
     public static class AppConfig
     {
-        public static readonly string BaseUrl = "https://20bjv6z1-7298.uks1.devtunnels.ms/";
+        public static readonly string BaseUrl = "https://z0nkwd9h-7298.uks1.devtunnels.ms/";
         public static readonly string HomePageTitlte = "Lanches";
     }
 }

@@ -69,6 +69,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\ShoppingCartPage.xaml.cs">
+	    <DependentUpon>ShoppingCartPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Pages\FavouritesPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

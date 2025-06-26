@@ -163,6 +163,32 @@ namespace AppLanches.Services
         }
 
 
+        public async Task<ApiResponse<bool>> UploadImageUser(byte[] imageArray)
+        {
+            try
+            {
+                var content = new MultipartFormDataContent();
+                content.Add(new ByteArrayContent(imageArray), "image", "image.jpg");
+                var response = await PostRequest("api/users/uploadimage", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage = response.StatusCode == HttpStatusCode.Unauthorized
+                      ? "Unauthorized"
+                      : $"Erro ao enviar requisição HTTP: {response.StatusCode}";
+
+                    _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
+                    return new ApiResponse<bool> { ErrorMessage = errorMessage };
+                }
+                return new ApiResponse<bool> { Data = true };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao fazer upload da imagem do usuário: {ex.Message}");
+                return new ApiResponse<bool> { ErrorMessage = ex.Message };
+            }
+        }
+
         private async Task<HttpResponseMessage> PostRequest(string uri, HttpContent content)
         {
             var enderecoUrl = BaseUrl + uri;  // Constrói a URL completa para a requisição
@@ -260,6 +286,13 @@ namespace AppLanches.Services
         {
             var endpoint = $"api/ShoppingCartItems/{userId}";
             return await GetAsync<List<ShoppingCartItem>>(endpoint);
+        }
+
+
+        public async Task<(ImageProfile? ImageProfile, string? ErrorMessage)> GetUserProfileImage()
+        {
+            string endpoint = "api/users/userimage";
+            return await GetAsync<ImageProfile>(endpoint);
         }
 
 

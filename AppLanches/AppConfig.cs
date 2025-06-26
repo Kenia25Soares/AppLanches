@@ -10,5 +10,7 @@ namespace AppLanches
     {
         public static readonly string BaseUrl = "https://z0nkwd9h-7298.uks1.devtunnels.ms/";
         public static readonly string HomePageTitlte = "Lanches";
+
+        public static readonly string ProfileImageDefault = "Resources/Images/user1.png";
     }
 }

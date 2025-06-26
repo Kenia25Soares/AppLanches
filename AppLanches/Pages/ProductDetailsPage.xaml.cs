@@ -10,6 +10,8 @@ public partial class ProductDetailsPage : ContentPage
     private readonly IValidator _validator;
     private int _productId;
     private bool _loginPageDisplayed = false;
+    private readonly FavoritesService _favoritesService = new FavoritesService();  // Serviço para gerenciar favoritos, Como não foi injetado, cria uma nova instância aqui
+    private string? _urlImage;
 
     public ProductDetailsPage(int productId, string productName,
                                ApiService apiService, IValidator validator)
@@ -26,6 +28,7 @@ public partial class ProductDetailsPage : ContentPage
     {
         base.OnAppearing();
         await GetProductDetails(_productId);
+        UpdateFavoriteButton();
     }
 
     private async Task <Product?> GetProductDetails(int productId)
@@ -54,6 +57,7 @@ public partial class ProductDetailsPage : ContentPage
             LblProductPrice.Text = productDetails.Price.ToString();
             LblProductDescription.Text = productDetails.Details;
             LblTotalPrice.Text = productDetails.Price.ToString();
+            _urlImage = productDetails.ImagePath;
         }
         else
         {
@@ -63,9 +67,47 @@ public partial class ProductDetailsPage : ContentPage
         return productDetails;
     }
 
-    private void ImageBtnFavourite_Clicked(object sender, EventArgs e)
+    private async void ImageBtnFavorite_Clicked(object sender, EventArgs e)
     {
 
+        try
+        {
+            var favoriteExists = await _favoritesService.ReadAsync(_productId);
+            if (favoriteExists is not null)
+            {
+                await _favoritesService.DeleteAsync(favoriteExists);
+            }
+            else
+            {
+                var favoriteProduct = new FavoriteProduct()
+                {
+                    ProductId = _productId,
+                    IsFavorite = true,
+                    Details = LblProductDescription.Text,
+                    Name = LblProductName.Text,
+                    Price = Convert.ToDecimal(LblProductPrice.Text),
+                    UrlImage = _urlImage  // Definir _urlImage com o caminho da imagem do produto
+                };
+
+                await _favoritesService.CreateAsync(favoriteProduct); 
+            }
+            UpdateFavoriteButton();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erro", $"Ocorreu um erro: {ex.Message}", "OK");
+        }
+    }
+
+    private  async void UpdateFavoriteButton()
+    {
+        var favoriteExists = await
+               _favoritesService.ReadAsync(_productId);
+
+        if (favoriteExists is not null)
+            ImageBtnFavorite.Source = "heartfill";
+        else
+            ImageBtnFavorite.Source = "heart";
     }
 
     private void BtnRemove_Clicked(object sender, EventArgs e)

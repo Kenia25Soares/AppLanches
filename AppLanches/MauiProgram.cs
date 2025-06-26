@@ -22,6 +22,7 @@ namespace AppLanches
 #endif      
             builder.Services.AddHttpClient();
             builder.Services.AddSingleton<ApiService>();
+            //builder.Services.AddSingleton<FavoritesService>();  Seria Suposto adicionar o serviço de favoritos aqui, mas não foi implementado no código fornecido.
             builder.Services.AddSingleton<IValidator, Validator>();
 
             return builder.Build();

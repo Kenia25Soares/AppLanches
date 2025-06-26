@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SqlTypes;
 
+
 namespace AppLanches.Pages;
 
 public partial class ShoppingCartPage : ContentPage
@@ -12,6 +13,7 @@ public partial class ShoppingCartPage : ContentPage
     private readonly ApiService _apiService;
     private readonly IValidator _validator; 
     private bool _loginPageDisplayed = false;
+    private bool _isNavigatingToEmptyCartPage = false;
 
 
     private ObservableCollection<ShoppingCartItem>
@@ -29,16 +31,49 @@ public partial class ShoppingCartPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await GetShoppingCartItems();
+
+        if (IsNavigatingToEmptyCartPage()) return;
+
+        bool hasItems = await GetShoppingCartItems();
+
+        if (hasItems)
+        {
+            DisplayAddress(); 
+        }
+        else
+        {
+            await NavigateToEmptyCartPage(); 
+        }
+        //await GetShoppingCartItems();
 
 
+        //bool savedAddress = Preferences.ContainsKey("address");
+        //if (savedAddress)
+        //{
+        //    string name = Preferences.Get("name", string.Empty);
+        //    string address = Preferences.Get("address", string.Empty);
+        //    string phoneNumber = Preferences.Get("phonenumber", string.Empty);
+
+        //    LblAddress.Text = $"{name}\n{address} \n{phoneNumber}";
+        //}
+        //else
+        //{
+        //    LblAddress.Text = "Informe o seu endereço."; 
+        //}
+    }
+
+    private void DisplayAddress()
+    {
         bool savedAddress = Preferences.ContainsKey("address");
+
+
         if (savedAddress)
         {
             string name = Preferences.Get("name", string.Empty);
             string address = Preferences.Get("address", string.Empty);
             string phoneNumber = Preferences.Get("phonenumber", string.Empty);
 
+            // Formatar os dados conforme desejado na label
             LblAddress.Text = $"{name}\n{address} \n{phoneNumber}";
         }
         else
@@ -47,7 +82,28 @@ public partial class ShoppingCartPage : ContentPage
         }
     }
 
-    private async Task<IEnumerable<ShoppingCartItem>> GetShoppingCartItems()
+    private bool IsNavigatingToEmptyCartPage()
+    {
+        if (_isNavigatingToEmptyCartPage)
+        {
+            _isNavigatingToEmptyCartPage = false; 
+            return true;
+        }
+        return false;
+    }
+
+
+    private async Task NavigateToEmptyCartPage()
+    {
+        LblAddress.Text = string.Empty;
+
+        _isNavigatingToEmptyCartPage = true;
+
+        // Limpar os itens do carrinho e o preço total
+        await Navigation.PushAsync(new EmptyCartPage());
+    }
+
+    private async Task<bool> GetShoppingCartItems()
     {
         try
         {
@@ -59,13 +115,13 @@ public partial class ShoppingCartPage : ContentPage
             {
                 // Redirecionar para a pagina de login
                 await DisplayLoginPage();
-                return Enumerable.Empty<ShoppingCartItem>();
+                return false;
             }
 
             if (shoopingCartItems == null)
             {
                 await DisplayAlert("Error", errorMessage ?? "Não foi possivel obter os itens do carrinho.", "OK");
-                return Enumerable.Empty<ShoppingCartItem>();
+                return false;
             }
 
             ShoppingCartItems.Clear();
@@ -77,12 +133,16 @@ public partial class ShoppingCartPage : ContentPage
             CvCart.ItemsSource = ShoppingCartItems;
             UpdateTotalPrice(); // Atualizar o preco total ap?s atualizar os itens do carrinho
 
-            return shoopingCartItems;
+            if (!ShoppingCartItems.Any())
+            {
+                return false; 
+            }
+            return true;
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Ocorreu um erro inesperado: {ex.Message}", "OK");
-            return Enumerable.Empty<ShoppingCartItem>();
+            return false;
         }
     }
 
@@ -152,8 +212,39 @@ public partial class ShoppingCartPage : ContentPage
         Navigation.PushAsync(new AddressPage());
     }
 
-    private void TapConfirmOrder_Tapped(object sender, TappedEventArgs e)
+    private async void TapConfirmOrder_Tapped(object sender, TappedEventArgs e)
     {
+        if (ShoppingCartItems == null || !ShoppingCartItems.Any())
+        {
+            await DisplayAlert("Informação", "Seu carrinho está vazio ou o pedido já foi confirmado.", "OK"); 
+            return;
+        }
 
+        var order = new Order()
+        {
+            Address = LblAddress.Text,
+            UserId = Preferences.Get("userId", 0),
+            Total = Convert.ToDecimal(LblTotalPrice.Text)
+        };
+
+        var response = await _apiService.ConfirmOrder(order);
+
+        if (response.HasError)
+        {
+            if (response.ErrorMessage == "Unauthorized")
+            {
+                // Redirecionar para a página de login
+                await DisplayLoginPage(); 
+                return;
+            }
+            await DisplayAlert("Opa !!!", $"Algo deu errado: {response.ErrorMessage}", "Cancelar");
+            return;
+        }
+
+        ShoppingCartItems.Clear();
+        LblAddress.Text = "Informe o seu endereço.";
+        LblTotalPrice.Text = "0.00";
+
+        await Navigation.PushAsync(new OrderConfirmedPage());
     }
 }

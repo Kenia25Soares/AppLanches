@@ -135,6 +135,34 @@ namespace AppLanches.Services
         }
 
 
+        public async Task<ApiResponse<bool>> ConfirmOrder(Order order)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(order, _serializerOptions);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await PostRequest("api/Orders", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage = response.StatusCode == HttpStatusCode.Unauthorized
+                        ? "Unauthorized"
+                        : $"Erro ao enviar requisição HTTP: {response.StatusCode}";
+
+                    _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
+                    return new ApiResponse<bool> { ErrorMessage = errorMessage };
+                }
+                return new ApiResponse<bool> { Data = true };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error ao confirmar pedido: {ex.Message}");
+                return new ApiResponse<bool> { ErrorMessage = ex.Message };
+            }
+        }
+
+
         private async Task<HttpResponseMessage> PostRequest(string uri, HttpContent content)
         {
             var enderecoUrl = BaseUrl + uri;  // Constrói a URL completa para a requisição

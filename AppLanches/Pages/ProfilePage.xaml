@@ -36,7 +36,7 @@
                        FontAttributes="Bold"
                        FontSize="Small" />
                 <HorizontalStackLayout.GestureRecognizers>
-                    <TapGestureRecognizer x:Name="TapRequests" Tapped="TapRequests_Tapped" />
+                    <TapGestureRecognizer x:Name="TapOrders" Tapped="TapOrders_Tapped" />
                 </HorizontalStackLayout.GestureRecognizers>
             </HorizontalStackLayout>
 

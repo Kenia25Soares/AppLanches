@@ -206,7 +206,6 @@ namespace AppLanches.Services
         }
 
 
-
         public async Task<(bool Data, string? ErrorMessage)> UpdateShoppingCartItemQuantity(int productId, string action)
         {
             try
@@ -295,6 +294,22 @@ namespace AppLanches.Services
             return await GetAsync<ImageProfile>(endpoint);
         }
 
+
+        public async Task<(List<OrdersByUser>?, string? ErrorMessage)> GetOrdersByUser(int userId)
+        {
+
+            string endpoint = $"api/orders/GetOrdersByUser/{userId}";
+
+            return await GetAsync<List<OrdersByUser>>(endpoint);
+        }
+
+
+        public async Task<(List<OrderDetail>?, string? ErrorMessage)> GetOrderDetails(int orderId)
+        {
+            string endpoint = $"api/orders/GetOrderDetails/{orderId}";
+
+            return await GetAsync<List<OrderDetail>>(endpoint);
+        }
 
         private async Task<(T? Data, string? ErrorMessage)> GetAsync<T>(string endpoint)
         {

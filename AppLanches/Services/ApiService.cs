@@ -96,7 +96,9 @@ namespace AppLanches.Services
 
                 Preferences.Set("accessToken", result!.AccessToken);
                 Preferences.Set("userId", (int)result.UserId!);
-                Preferences.Set("userName", result.UserName);
+                Preferences.Set("username", result.UserName);
+                Preferences.Set("useremail", result.Email);    // precisa garantir que vem no Token
+                Preferences.Set("userphone", result.Phone);
 
                 return new ApiResponse<bool> { Data = true };
             }
